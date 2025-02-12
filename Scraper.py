@@ -13,8 +13,8 @@ def getBooks(url):
     try:
         page = requests.get(url).text
         src = BeautifulSoup(page,"lxml")
-        books= src.find("ol",class_="row").find_all("li","col-xs-6 col-sm-4 col-md-3 col-lg-3")
-        return [f"https://books.toscrape.com/{book.a["href"]}" for book in books]
+        books= src.find("ol",class_="row").find_all("li")
+        return [f"https://books.toscrape.com/catalogue/{book.a["href"][8:]}" for book in books]
     except ConnectionError as err :
         print("connection error ", err)
         print("*"*50)
@@ -39,12 +39,9 @@ def getBookDetails(url):
 
     return Book(bookTitle,price,category,description,stars,Ninstock)
 
-def saveData(src):
-    data = json.loads(src,indent = 2, sort_keys = True)
+def saveData(src,outName="output"):
     if "output" not in os.listdir(os.getcwd()):
         os.system("mkdir output")
 
-    with open("output/output.json","w") as file:
-        json.dump(data,file)
-
-    ctext(r"data saved to 'output/output.json'")
+    with open(f"output/{outName}.json","a") as file:
+        json.dump(src, file, indent=4)
